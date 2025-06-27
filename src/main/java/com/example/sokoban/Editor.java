@@ -21,10 +21,12 @@ public class Editor {
     private static Integer xVal = 16;
     private static Integer yVal = 10;
     private static Button[][] Bfield = new Button[xVal][yVal];
-    private static Field[][] field = new Field[xVal][yVal];
+    private static Field[][] fields = new Field[xVal][yVal];
     private static Field current = new Ground();
     private static Player player = new Player(3);
     private static Image curImage = current.getIamge();
+    private static int goals = 0;
+    private static int crates = 0;
 
 
     private static Image ground = new Image(Editor.class.getResource("/images/ground.png").toExternalForm());
@@ -43,9 +45,9 @@ public class Editor {
         Canvas canvas = new Canvas(64 * xVal, 64 * yVal);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        for(int i = 0; i < field.length; i++){
-            for (int j = 0; j < field[i].length; j++) {
-                field[i][j] = new Ground();
+        for(int i = 0; i < fields.length; i++){
+            for (int j = 0; j < fields[i].length; j++) {
+                fields[i][j] = new Ground();
                 gc.drawImage(ground, 64 * i, 64 * j, 64, 64);
             }
         }
@@ -78,30 +80,51 @@ public class Editor {
                     }
 
                     if(current instanceof Player){
-                        if(field[finalI][finalJ] instanceof Wall || field[finalI][finalJ] instanceof Box){
-                            field[finalI][finalJ] = new Ground();
+                        if(fields[finalI][finalJ] instanceof Wall){
+                            fields[finalI][finalJ] = new Ground();
+                        } else if(fields[finalI][finalJ] instanceof Box){
+                            fields[finalI][finalJ] = new Ground();
+                            crates--;
                         }
                         player.setPosX(finalI);
                         player.setPosY(finalJ);
                     }else if(current instanceof Box){
-                        if(field[finalI][finalJ] instanceof Player){
+                        if(fields[finalI][finalJ] instanceof Player){
                             player.setPosX(-1);
                             player.setPosY(-1);
+                        } else if (fields[finalI][finalJ] instanceof Goal) {
+                            goals--;
                         }
-                        field[finalI][finalJ] = new Box(false);
+                        fields[finalI][finalJ] = new Box(false);
+                        crates++;
                     }else if(current instanceof Goal){
-                        field[finalI][finalJ] = new Goal();
+                        if (fields[finalI][finalJ] instanceof Box) {
+                            crates--;
+                        }
+                        fields[finalI][finalJ] = new Goal();
+                        goals++;
+
                     }else if(current instanceof Ground){
-                        field[finalI][finalJ] = new Ground();
+                        if (fields[finalI][finalJ] instanceof Box) {
+                            crates--;
+                        } else if (fields[finalI][finalJ] instanceof Goal) {
+                            goals--;
+                        }
+                        fields[finalI][finalJ] = new Ground();
                     } else if(current instanceof Wall) {
-                        if(field[finalI][finalJ] instanceof Player){
+                        if (fields[finalI][finalJ] instanceof Box) {
+                            crates--;
+                        } else if (fields[finalI][finalJ] instanceof Goal) {
+                            goals--;
+                        }
+                        if(fields[finalI][finalJ] instanceof Player){
                             player.setPosX(-1);
                             player.setPosY(-1);
                         }
-                        field[finalI][finalJ] = new Wall();
+                        fields[finalI][finalJ] = new Wall();
                     }
                     gc.drawImage(ground, 64 * finalI, 64 * finalJ, 64, 64);
-                    gc.drawImage(field[finalI][finalJ].getIamge(), 64 * finalI, 64 * finalJ, 64, 64);
+                    gc.drawImage(fields[finalI][finalJ].getIamge(), 64 * finalI, 64 * finalJ, 64, 64);
                     if(player.getPosX() >= 0) gc.drawImage(player.getIamge(), 64 * player.getPosX(), 64 * player.getPosY(), 64, 64);
                 });
 
@@ -157,19 +180,20 @@ public class Editor {
         save.setOnAction(e -> {
             if(player.getPosX() < 0) return;
             if(xVal <= 0 || yVal <= 0) return;
-            for(int i = 0; i < field.length; i++){
-                for(int j = 0; j < field[i].length; j++){
-                    if(field[i][j] == null) return;
+            if(crates < goals || goals == 0) return;
+            for(int i = 0; i < fields.length; i++){
+                for(int j = 0; j < fields[i].length; j++){
+                    if(fields[i][j] == null) return;
                 }
             }
             try(FileWriter writer = new FileWriter("C:\\Users\\linus\\Develope\\Uni\\FP25\\Sokoban\\levels.txt", true)) {
                 writer.write("+++\n");
                 writer.write(xVal + "x" + yVal + "\n");
                 writer.write(player.toCode() + "\n");
-                for (int j = 0; j < field[0].length; j++) {
+                for (int j = 0; j < fields[0].length; j++) {
                     StringBuilder row = new StringBuilder();
-                    for (int i = 0; i < field.length; i++) {
-                        row.append(field[i][j].toCode());
+                    for (int i = 0; i < fields.length; i++) {
+                        row.append(fields[i][j].toCode());
                     }
                     writer.write(row + "\n");
                 }
