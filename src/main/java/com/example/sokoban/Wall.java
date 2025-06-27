@@ -12,7 +12,7 @@ public class Wall extends Field{
          return wall;
     }
 
-    public char toChar(){
-        return 'w';
+    public String toCode(){
+        return "w";
     }
 }

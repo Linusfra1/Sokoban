@@ -23,12 +23,10 @@ public class Editor {
     private static Button[][] Bfield = new Button[xVal][yVal];
     private static Field[][] field = new Field[xVal][yVal];
     private static Field current = new Ground();
-    private static Integer playerX = -1;
-    private static Integer playerY = -1;
+    private static Player player = new Player(3);
     private static Image curImage = current.getIamge();
 
 
-    private static Image player = new Image(Editor.class.getResource("/images/player_down.png").toExternalForm());
     private static Image ground = new Image(Editor.class.getResource("/images/ground.png").toExternalForm());
 
     public Editor(){
@@ -83,12 +81,12 @@ public class Editor {
                         if(field[finalI][finalJ] instanceof Wall || field[finalI][finalJ] instanceof Box){
                             field[finalI][finalJ] = new Ground();
                         }
-                        playerX = finalI;
-                        playerY = finalJ;
+                        player.setPosX(finalI);
+                        player.setPosY(finalJ);
                     }else if(current instanceof Box){
                         if(field[finalI][finalJ] instanceof Player){
-                            playerX = null;
-                            playerY = null;
+                            player.setPosX(-1);
+                            player.setPosY(-1);
                         }
                         field[finalI][finalJ] = new Box(false);
                     }else if(current instanceof Goal){
@@ -97,14 +95,14 @@ public class Editor {
                         field[finalI][finalJ] = new Ground();
                     } else if(current instanceof Wall) {
                         if(field[finalI][finalJ] instanceof Player){
-                            playerX = null;
-                            playerY = null;
+                            player.setPosX(-1);
+                            player.setPosY(-1);
                         }
                         field[finalI][finalJ] = new Wall();
                     }
                     gc.drawImage(ground, 64 * finalI, 64 * finalJ, 64, 64);
                     gc.drawImage(field[finalI][finalJ].getIamge(), 64 * finalI, 64 * finalJ, 64, 64);
-                    if(playerX != null) gc.drawImage(player, 64 * playerX, 64 * playerY, 64, 64);
+                    if(player.getPosX() >= 0) gc.drawImage(player.getIamge(), 64 * player.getPosX(), 64 * player.getPosY(), 64, 64);
                 });
 
                 grid.add(Bfield[i][j], i, j);
@@ -157,7 +155,7 @@ public class Editor {
 
         Button save = new Button("Save");
         save.setOnAction(e -> {
-            if(playerX < 0 || playerY < 0) return;
+            if(player.getPosX() < 0) return;
             if(xVal <= 0 || yVal <= 0) return;
             for(int i = 0; i < field.length; i++){
                 for(int j = 0; j < field[i].length; j++){
@@ -167,11 +165,11 @@ public class Editor {
             try(FileWriter writer = new FileWriter("C:\\Users\\linus\\Develope\\Uni\\FP25\\Sokoban\\levels.txt", true)) {
                 writer.write("+++\n");
                 writer.write(xVal + "x" + yVal + "\n");
-                writer.write(playerY + "," + playerX + "\n");
+                writer.write(player.toCode() + "\n");
                 for (int j = 0; j < field[0].length; j++) {
                     StringBuilder row = new StringBuilder();
                     for (int i = 0; i < field.length; i++) {
-                        row.append(field[i][j].toChar());
+                        row.append(field[i][j].toCode());
                     }
                     writer.write(row + "\n");
                 }

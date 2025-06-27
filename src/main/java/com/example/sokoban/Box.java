@@ -20,7 +20,7 @@ public class Box extends Field{
         return onGoal;
     }
 
-    public char toChar(){
-        return 'c';
+    public String toCode(){
+        return "c";
     }
 }

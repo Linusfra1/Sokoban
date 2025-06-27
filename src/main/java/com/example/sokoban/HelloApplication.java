@@ -40,8 +40,6 @@ public class HelloApplication extends Application {
     private final Player player = new Player(3);
     private int goalsize = 0;
     private int onGoals = 0;
-    private int playerX = 5;
-    private int playerY = 5;
     private Field[][] fields;
     public boolean inMove = false;
 
@@ -59,7 +57,7 @@ public class HelloApplication extends Application {
                 }
             }
         }
-        gc.drawImage(player.getIamge(), playerX * 64, playerY * 64 + 20, 64, 64);
+        gc.drawImage(player.getIamge(), player.getPosX() * 64, player.getPosY() * 64 + 20, 64, 64);
     }
     public void initalize(Field[][] fields, GraphicsContext gc) {
         paused = false;
@@ -74,7 +72,7 @@ public class HelloApplication extends Application {
                 }
             }
         }
-        gc.drawImage(player.getIamge(), playerX * 64, playerY * 64 + 20, 64, 64);
+        gc.drawImage(player.getIamge(), player.getPosX() * 64, player.getPosY() * 64 + 20, 64, 64);
     }
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -117,156 +115,70 @@ public class HelloApplication extends Application {
             if(paused) return;
             if(inMove) return;
             Thread walkThread;
+            int offsetX = 0;
+            int offsetY = 0;
+            int dir = 3;
             switch (event.getCode()) {
                 case UP://Y-1
-                    if(playerY > 0 && !(fields[playerX][playerY-1] instanceof Wall)){
-                        //Box schieben
-                        if(fields[playerX][playerY-1] instanceof Box && (fields[playerX][playerY-2] instanceof Ground || fields[playerX][playerY-2] instanceof Goal)){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 1, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            //Feld auf dem ich stehe zu Ground oder Goal machen
-                            //teste ob Box auf goal Stand
-                            boolean check = ((Box) fields[playerX][playerY-1]).isOnGoal();
-                            playerY--;
-                            //wenn box auf goal gerückt dann merken
-                            if(fields[playerX][playerY-1] instanceof Goal){
-                                fields[playerX][playerY-1] = new Box(true);
-                                onGoals++;
-                            }else fields[playerX][playerY-1]=new Box(false);
-                            //gucken ob box auf goal war
-                            if(check){
-                                fields[playerX][playerY] = new Goal();
-                                onGoals--;
-                            }else{
-                                fields[playerX][playerY] = new Ground();
-                            }
-                        }else  if(fields[playerX][playerY-1] instanceof Ground || fields[playerX][playerY-1] instanceof Goal){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 1, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            playerY--;
-                        }
-                    }
-                    scoreLabel.setText("Score: " + steps);
-                    player.setDir(1);
+                    offsetX = 0;
+                    offsetY = -1;
+                    dir = 1;
                     break;
                 case RIGHT://X+1
-                    if(playerX < fields.length-1 && !(fields[playerX+1][playerY] instanceof Wall)){
-                        //Box schieben
-                        if(fields[playerX+1][playerY] instanceof Box && (fields[playerX+2][playerY] instanceof Ground || fields[playerX+2][playerY] instanceof Goal)){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 2, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            //Feld auf dem ich stehe zu Ground oder Goal machen
-                            //teste ob Box auf goal Stand
-                            boolean check = ((Box) fields[playerX+1][playerY]).isOnGoal();
-                            playerX++;
-                            //wenn box auf goal gerückt dann merken
-                            if(fields[playerX+1][playerY] instanceof Goal){
-                                fields[playerX+1][playerY] = new Box(true);
-                                onGoals++;
-                            }else fields[playerX+1][playerY]=new Box(false);
-                            //gucken ob box auf goal war
-                            if(check){
-                                fields[playerX][playerY] = new Goal();
-                                onGoals--;
-                            }else{
-                                fields[playerX][playerY] = new Ground();
-                            }
-                        }else  if(fields[playerX+1][playerY] instanceof Ground || fields[playerX+1][playerY] instanceof Goal){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 2, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            playerX++;
-                        }
-                    }
-                    scoreLabel.setText("Score: " + steps);
-                    player.setDir(2);
+                    offsetX = 1;
+                    offsetY = 0;
+                    dir = 2;
                     break;
                 case DOWN://Y+1
-                    player.setDir(3);
-                    if(playerY < fields[playerX].length-1 && !(fields[playerX][playerY+1] instanceof Wall)){
-                        //Box schieben
-                        if(fields[playerX][playerY+1] instanceof Box && (fields[playerX][playerY+2] instanceof Ground || fields[playerX][playerY+2] instanceof Goal)){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 3, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            //Feld auf dem ich stehe zu Ground oder Goal machen
-                            //teste ob Box auf goal Stand
-                            boolean check = ((Box) fields[playerX][playerY+1]).isOnGoal();
-                            playerY++;
-                            //wenn box auf goal gerückt dann merken
-                            if(fields[playerX][playerY+1] instanceof Goal){
-                                fields[playerX][playerY+1] = new Box(true);
-                                onGoals++;
-                            }else fields[playerX][playerY+1]=new Box(false);
-                            //gucken ob box auf goal war
-                            if(check){
-                                fields[playerX][playerY] = new Goal();
-                                onGoals--;
-                            }else{
-                                fields[playerX][playerY] = new Ground();
-                            }
-                        }else  if(fields[playerX][playerY+1] instanceof Ground || fields[playerX][playerY+1] instanceof Goal){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 3, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            playerY++;
-                        }
-                    }
-                    scoreLabel.setText("Score: " + steps);
+                    offsetX = 0;
+                    offsetY = 1;
+                    dir = 3;
                     break;
                 case LEFT://X-1
-                    if(playerX > 0 && !(fields[playerX-1][playerY] instanceof Wall)){
-                        //Box schieben
-                        if(fields[playerX-1][playerY] instanceof Box && (fields[playerX-2][playerY] instanceof Ground || fields[playerX-2][playerY] instanceof Goal)){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 4, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            //Feld auf dem ich stehe zu Ground oder Goal machen
-                            //teste ob Box auf goal Stand
-                            boolean check = ((Box) fields[playerX-1][playerY]).isOnGoal();
-                            playerX--;
-                            //wenn box auf goal gerückt dann merken
-                            if(fields[playerX-1][playerY] instanceof Goal){
-                                fields[playerX-1][playerY] = new Box(true);
-                                onGoals++;
-                            }else fields[playerX-1][playerY]=new Box(false);
-                            //gucken ob box auf goal war
-                            if(check){
-                                fields[playerX][playerY] = new Goal();
-                                onGoals--;
-                            }else{
-                                fields[playerX][playerY] = new Ground();
-                            }
-                        }else  if(fields[playerX-1][playerY] instanceof Ground || fields[playerX-1][playerY] instanceof Goal){
-                            WalkItLikeITalkIt walk = new WalkItLikeITalkIt(playerX, playerY, 4, gc, fields, this);
-                            walkThread = new Thread(walk);
-                            inMove = true;
-                            walkThread.start();
-                            steps++;
-                            playerX--;
-                        }
-                    }
-                    scoreLabel.setText("Score: " + steps);
-                    player.setDir(4);
+                    offsetX = -1;
+                    offsetY = 0;
+                    dir = 4;
                     break;
             }
+            if(player.getPosX() + offsetX >= 0 && player.getPosY() + offsetY >= 0 && player.getPosX() + offsetX < fields.length && player.getPosY() + offsetY < fields[0].length && !(fields[player.getPosX() + offsetX][player.getPosY() + offsetY] instanceof Wall)){
+                //Box schieben
+                if(fields[player.getPosX() + offsetX][player.getPosY() + offsetY] instanceof Box && (fields[player.getPosX() + 2 * offsetX][player.getPosY() + 2 * offsetY] instanceof Ground || fields[player.getPosX() + 2 * offsetX][player.getPosY() + 2 * offsetY] instanceof Goal)){
+                    System.out.println("Movable Box");
+                    WalkItLikeITalkIt walk = new WalkItLikeITalkIt(player.getPosX(), player.getPosY(), dir, gc, fields, this);
+                    walkThread = new Thread(walk);
+                    inMove = true;
+                    walkThread.start();
+                    steps++;
+                    //teste ob Box auf goal Stand
+                    boolean check = ((Box) fields[player.getPosX() + offsetX][player.getPosY() + offsetY]).isOnGoal();
+                    player.setPosX(player.getPosX() + offsetX);
+                    player.setPosY(player.getPosY() + offsetY);
+                    //wenn box auf goal gerückt dann merken
+                    if(fields[player.getPosX() + offsetX][player.getPosY() + offsetY] instanceof Goal){
+                        fields[player.getPosX() + offsetX][player.getPosY() + offsetY] = new Box(true);
+                        onGoals++;
+                    }else fields[player.getPosX() + offsetX][player.getPosY() + offsetY]=new Box(false);
+                    //gucken ob box auf goal war
+                    if(check){
+                        fields[player.getPosX()][player.getPosY()] = new Goal();
+                        onGoals--;
+                    }else{
+                        fields[player.getPosX()][player.getPosY()] = new Ground();
+                    }
+                }else  if(fields[player.getPosX() + offsetX][player.getPosY() + offsetY] instanceof Ground || fields[player.getPosX() + offsetX][player.getPosY() + offsetY] instanceof Goal){
+                    System.out.println("Normal move");
+                    WalkItLikeITalkIt walk = new WalkItLikeITalkIt(player.getPosX(), player.getPosY(), dir, gc, fields, this);
+                    walkThread = new Thread(walk);
+                    inMove = true;
+                    walkThread.start();
+                    steps++;
+                    player.setPosX(player.getPosX() + offsetX);
+                    player.setPosY(player.getPosY() + offsetY);
+                }
+            }
+            System.out.println(player.getPosX() + " " + offsetX + " " + player.getPosY() + " " + offsetY + " " + fields[player.getPosX() + offsetX][player.getPosY() + offsetY]);
+            scoreLabel.setText("Score: " + steps);
+            player.setDir(dir);
             draw(fields, gc);
             if(onGoals == goalsize){
                 t.interrupt();
@@ -341,8 +253,8 @@ public class HelloApplication extends Application {
     private void startGame(GraphicsContext gc) {
         try {
             Level currentLevel = Level.fromFile()[lvl-1];
-            playerX = currentLevel.getPlayerX();
-            playerY = currentLevel.getPlayerY();
+            player.setPosX(currentLevel.getPlayerX());
+            player.setPosY(currentLevel.getPlayerY());
             fields = currentLevel.getGamefield();
         } catch (IOException ex) {
             throw new RuntimeException(ex);

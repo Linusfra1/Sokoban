@@ -12,7 +12,7 @@ public class Ground extends Field{
         return ground;
     }
 
-    public char toChar(){
-        return 'g';
+    public String toCode(){
+        return "g";
     }
 }

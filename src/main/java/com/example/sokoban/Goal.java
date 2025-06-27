@@ -12,7 +12,7 @@ public class Goal extends Field{
         return goal;
     }
 
-    public char toChar(){
-        return '*';
+    public String toCode(){
+        return "*";
     }
 }

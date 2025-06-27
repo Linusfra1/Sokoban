@@ -7,10 +7,14 @@ public class Player extends Field{
     private Image r = new Image(getClass().getResource("/images/player_right.png").toExternalForm());
     private Image d = new Image(getClass().getResource("/images/player_down.png").toExternalForm());
     private Image l = new Image(getClass().getResource("/images/player_left.png").toExternalForm());
+    private int posX;
+    private int posY;
 
     public int dir;
     public Player(int dir){
         this.dir = dir;
+        this.posX = -1;
+        this.posY = -1;
     }
 
     @Override
@@ -34,7 +38,23 @@ public class Player extends Field{
     }
 
     @Override
-    public char toChar() {
-        return 0;
+    public String toCode() {
+        return posY + "," + posX;
+    }
+
+    public int getPosX() {
+        return posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
     }
 }

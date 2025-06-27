@@ -36,6 +36,7 @@ public class WalkItLikeITalkIt implements Runnable{
 
     @Override
     public void run() {
+        System.out.println("runing k: " + dir);
         int size = (64/frames);
         int delay = 200/frames;
         for(int k = 0; k < frames; k++){

@@ -8,5 +8,5 @@ public abstract class Field {
 
     public abstract Image getIamge();
 
-    public abstract char toChar();
+    public abstract String toCode();
 }
